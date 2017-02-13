@@ -26,10 +26,15 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private Background bg;
     private Player player;
     private Player p2;
+    int numBlues = 10;
+    private Blue[] blues = new Blue[numBlues];
     private Context context;
 
     public GamePanel(Context context){
         super(context);
+        for(int i = 0; i < numBlues; i++){
+            blues[i] = new Blue();
+        }
         //adding ability to intercept events like touch screen presses
         getHolder().addCallback(this);
         thread = new MainThread(getHolder(), this);
@@ -63,7 +68,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         final float scaleFactorX = getWidth()/(WIDTH*1.f);
         final float scaleFactorY = getHeight()/(HEIGHT*1.f);
         if(event.getAction() == MotionEvent.ACTION_DOWN){
-            player.setUp(true);
+            /*player.setUp(true);
             p2.setUp(true);
             //player.setX((int) (event.getX() / scaleFactorX));
             //player.setY((int)event.getY());
@@ -78,21 +83,23 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 p2.setDx((int) (((event.getX() / scaleFactorX) - (p2.getX() - p2.getR()))));
                 p2.setDy((int) (((event.getY() / scaleFactorY) - (p2.getY() - p2.getR()))));
             }
+
             System.out.println("Touch X: " + (int)event.getX() + " Touch Y: " + (int)event.getY() + " SCALE FACTOR: " + scaleFactorX + " DX: " + player.getDx());
+            */
             return true;
         }
         if(event.getAction() == MotionEvent.ACTION_UP){
-            player.setUp(false);
+           /* player.setUp(false);
             playerTouch = false;
             p2.setUp(false);
             p2Touch = false;
-            //player.setDx(0);
+            //player.setDx(0);*/
             return true;
         }
         if(event.getAction() == MotionEvent.ACTION_MOVE){
             //player.setX((int)(event.getX() / scaleFactorX));
             //set velocity to position we're touching - position we're at divided by the absolute value of the same number
-            if(playerTouch){
+            /*if(playerTouch){
                 player.setDx((int) (((event.getX() / scaleFactorX) - (player.getX() - player.getR()))));
                 player.setDy((int) (((event.getY() / scaleFactorY) - (player.getY() - player.getR()))));
             }
@@ -100,7 +107,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 p2.setDx((int) (((event.getX() / scaleFactorX) - (p2.getX() - p2.getR()))));
                 p2.setDy((int) (((event.getY() / scaleFactorY) - (p2.getY() - p2.getR()))));
             }
-            System.out.println("Touch X: " + (int)event.getX() + " Touch Y: " + (int)event.getY() + " SCALE FACTOR: " + scaleFactorX);
+            System.out.println("Touch X: " + (int)event.getX() + " Touch Y: " + (int)event.getY() + " SCALE FACTOR: " + scaleFactorX);*/
         }
         return super.onTouchEvent(event);
     }
@@ -109,8 +116,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceCreated(SurfaceHolder holder){
         final MediaPlayer soundtrack = MediaPlayer.create(context, R.raw.dbr);
         bg = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.appbg));
-        player = new Player();
-        p2 = new Player();
+        //player = new Player();
+        //p2 = new Player();
         soundtrack.start();
 
         //we can safely start the game loop
@@ -127,13 +134,16 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         }*/
 
         //Manual collision; to be put into a separate method
-        if(player.collidesWith(p2)){
+        /*if(player.collidesWith(p2)){
             player.collisionWithPlayer(p2);
         }
         System.out.println(player.getRectangle() +"    " + p2.getRectangle());
         player.update();
-        p2.update();
+        p2.update();*/
         bg.update();
+        for(int i = 0; i < numBlues; i++){
+            blues[i].update();
+        }
     }
 
     //testing these changes
@@ -146,7 +156,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         if (canvas != null){
             canvas.scale(scaleFactorX, scaleFactorY);
             bg.draw(canvas);
-            player.draw(canvas);
+            for(int i = 0; i < numBlues; i++){
+                blues[i].draw(canvas);
+            }
+            /*player.draw(canvas);
             p2.draw(canvas);
             Paint paint = new Paint();
             paint.setColor(Color.RED);
@@ -155,7 +168,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             Paint paint2 = new Paint();
             paint2.setColor(Color.BLUE);
             paint2.setStyle(Paint.Style.FILL);
-            canvas.drawRect(p2.getRectangle(), paint2);
+            canvas.drawRect(p2.getRectangle(), paint2);*/
         }
     }
 }

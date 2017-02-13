@@ -14,14 +14,22 @@ public class Blue extends GameObject {
     private int r;
 
     public Blue(){
-        Random rand = new Random();
-        x = rand.nextInt(GamePanel.WIDTH);
-        y = rand.nextInt(GamePanel.HEIGHT);
-        dy = rand.nextInt(10);
-        dx = rand.nextInt(10);
         r = 50;
         width = r * 2;
         height = r * 2;
+        Random rand = new Random();
+        x = rand.nextInt(GamePanel.WIDTH);
+        if(x < this.width){
+            x = this.width;
+        }
+        y = rand.nextInt(GamePanel.HEIGHT);
+        if(y > (GamePanel.HEIGHT - this.height)){
+            y = GamePanel.HEIGHT - this.height ;
+        }
+        if( y == 0){y++;}
+        dy = rand.nextInt(10);
+        dx = rand.nextInt(10);
+
     }
 
     public void setDx(int speed){dx = speed; }
