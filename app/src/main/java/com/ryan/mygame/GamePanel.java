@@ -13,6 +13,9 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Ryan on 5/10/2016.
  */
@@ -27,13 +30,14 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private Player player;
     private Player p2;
     int numBlues = 10;
-    private Blue[] blues = new Blue[numBlues];
+    private ArrayList<Blue> blues = new ArrayList<Blue>();
+    private List<Red> reds = new ArrayList<Red>();
     private Context context;
 
     public GamePanel(Context context){
         super(context);
         for(int i = 0; i < numBlues; i++){
-            blues[i] = new Blue();
+            blues.add(new Blue());
         }
         //adding ability to intercept events like touch screen presses
         getHolder().addCallback(this);
@@ -68,46 +72,29 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         final float scaleFactorX = getWidth()/(WIDTH*1.f);
         final float scaleFactorY = getHeight()/(HEIGHT*1.f);
         if(event.getAction() == MotionEvent.ACTION_DOWN){
-            /*player.setUp(true);
-            p2.setUp(true);
-            //player.setX((int) (event.getX() / scaleFactorX));
-            //player.setY((int)event.getY());
-            // If you touch within the radius of the player (x+, x-, y+, y-), have the player follow you
-            if(((event.getX() / scaleFactorX) >= (player.getX() - (player.getR()*2))) && ((event.getX() / scaleFactorX) <= (player.getX())) && ((event.getY() / scaleFactorY) >= (player.getY() - (player.getR()*2))) && ((event.getY() / scaleFactorY) <= (player.getY()))) {
-                playerTouch = true;
-                player.setDx((int) (((event.getX() / scaleFactorX) - (player.getX() - player.getR()))));
-                player.setDy((int) (((event.getY() / scaleFactorY) - (player.getY() - player.getR()))));
-            }
-            if(((event.getX() / scaleFactorX) >= (p2.getX() - (p2.getR()*2))) && ((event.getX() / scaleFactorX) <= (p2.getX())) && ((event.getY() / scaleFactorY) >= (p2.getY() - (p2.getR()*2))) && ((event.getY() / scaleFactorY) <= (p2.getY()))) {
-                p2Touch = true;
-                p2.setDx((int) (((event.getX() / scaleFactorX) - (p2.getX() - p2.getR()))));
-                p2.setDy((int) (((event.getY() / scaleFactorY) - (p2.getY() - p2.getR()))));
+
+            int correctPress = 0;
+            for(int i = 0; i < numBlues; i++){
+                //doesnt work for some reason
+                if(blues.get(i).isTouched((int)(event.getX() / scaleFactorX), (int)(event.getY() / scaleFactorY))){
+                    System.out.println("TOUCHED TOUCHED TOUCHED TOUCHED");
+                    blues.remove(i);
+                    numBlues--;
+                    correctPress = 1;
+                }
             }
 
-            System.out.println("Touch X: " + (int)event.getX() + " Touch Y: " + (int)event.getY() + " SCALE FACTOR: " + scaleFactorX + " DX: " + player.getDx());
-            */
+            if(correctPress == 0){
+                reds.add(new Red((int)((event.getX() / scaleFactorX) + Red.getR()), (int)((event.getY() / scaleFactorY)-Red.getR())));
+            }
+
             return true;
         }
         if(event.getAction() == MotionEvent.ACTION_UP){
-           /* player.setUp(false);
-            playerTouch = false;
-            p2.setUp(false);
-            p2Touch = false;
-            //player.setDx(0);*/
             return true;
         }
         if(event.getAction() == MotionEvent.ACTION_MOVE){
-            //player.setX((int)(event.getX() / scaleFactorX));
-            //set velocity to position we're touching - position we're at divided by the absolute value of the same number
-            /*if(playerTouch){
-                player.setDx((int) (((event.getX() / scaleFactorX) - (player.getX() - player.getR()))));
-                player.setDy((int) (((event.getY() / scaleFactorY) - (player.getY() - player.getR()))));
-            }
-            if(p2Touch && !playerTouch){
-                p2.setDx((int) (((event.getX() / scaleFactorX) - (p2.getX() - p2.getR()))));
-                p2.setDy((int) (((event.getY() / scaleFactorY) - (p2.getY() - p2.getR()))));
-            }
-            System.out.println("Touch X: " + (int)event.getX() + " Touch Y: " + (int)event.getY() + " SCALE FACTOR: " + scaleFactorX);*/
+            return true;
         }
         return super.onTouchEvent(event);
     }
@@ -116,8 +103,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceCreated(SurfaceHolder holder){
         final MediaPlayer soundtrack = MediaPlayer.create(context, R.raw.dbr);
         bg = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.appbg));
-        //player = new Player();
-        //p2 = new Player();
         soundtrack.start();
 
         //we can safely start the game loop
@@ -126,28 +111,23 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void update(){
-        //For some reason this isn't executing...
-        /*if(Rect.intersects(player.getRectangle(), p2.getRectangle()) || Rect.intersects(p2.getRectangle(), player.getRectangle())){
-            System.out.println("WORKING");
-            player.collisionWithPlayer();
-            p2.collisionWithPlayer();
-        }*/
-
-        //Manual collision; to be put into a separate method
-        /*if(player.collidesWith(p2)){
-            player.collisionWithPlayer(p2);
-        }
-        System.out.println(player.getRectangle() +"    " + p2.getRectangle());
-        player.update();
-        p2.update();*/
         bg.update();
-        for(int i = 0; i < numBlues; i++){
-            blues[i].update();
+        for(int i = 0; i < blues.size(); i++){
+            blues.get(i).update();
+        }
+        for(int i = 0; i < reds.size(); i++){
+            reds.get(i).update();
+        }
+        for(int i = 0; i < reds.size(); i++){
+            for(int j = 0; j < blues.size(); j++){
+                if (reds.get(i).getRectangle().intersect(blues.get(j).getRectangle())){
+                    blues.remove(j);
+                    numBlues--;
+                }
+            }
         }
     }
 
-    //testing these changes
-    //trying to get linked to github
     public void draw(Canvas canvas){
         super.draw(canvas);
         //This is the width of the screen divided by the width of our game
@@ -156,19 +136,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         if (canvas != null){
             canvas.scale(scaleFactorX, scaleFactorY);
             bg.draw(canvas);
-            for(int i = 0; i < numBlues; i++){
-                blues[i].draw(canvas);
+            for(int i = 0; i < blues.size(); i++){
+                blues.get(i).draw(canvas);
             }
-            /*player.draw(canvas);
-            p2.draw(canvas);
-            Paint paint = new Paint();
-            paint.setColor(Color.RED);
-            paint.setStyle(Paint.Style.FILL);
-            canvas.drawRect(player.getRectangle(), paint);
-            Paint paint2 = new Paint();
-            paint2.setColor(Color.BLUE);
-            paint2.setStyle(Paint.Style.FILL);
-            canvas.drawRect(p2.getRectangle(), paint2);*/
+            for(int i = 0; i < reds.size(); i++){
+                reds.get(i).draw(canvas);
+            }
         }
     }
 }

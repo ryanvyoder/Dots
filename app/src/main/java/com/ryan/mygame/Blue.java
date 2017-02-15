@@ -3,6 +3,7 @@ package com.ryan.mygame;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 
 import java.util.Random;
 
@@ -36,6 +37,15 @@ public class Blue extends GameObject {
 
     public void setDy(int speed){dy = speed; }
 
+    public boolean isTouched(int x, int y){
+        boolean touched;
+        Rect myRect = this.getRectangle();
+
+        touched = myRect.contains(x, y);
+
+        return touched;
+    }
+
     public void update(){
 
         y += dy;
@@ -49,7 +59,7 @@ public class Blue extends GameObject {
         if(x >= rightWall || (x-(r*2)) <= leftWall){
             dx = dx * -1;
         }
-        if(y >= botWall || (y-(r*2)) <= topWall){
+        if(y + (r*2) >= botWall || (y) <= topWall){
             dy = dy * -1;
         }
     }
@@ -59,7 +69,7 @@ public class Blue extends GameObject {
         paint.setColor(Color.BLUE);
         paint.setStyle(Paint.Style.FILL);
 
-        canvas.drawCircle(x - r, y - r, r, paint);
+        canvas.drawCircle(x - r, y + r, r, paint);
     }
 
 }

@@ -35,12 +35,12 @@ public abstract class GameObject {
     }
     // Accessor method for the Game Object's rectangle of occupancy
     public Rect getRectangle(){
-        return new Rect(x, y, x - width, y - height);
+        return new Rect(x - width,y,x, y + height);
     }
 
     // hhhh
     public boolean collidesWith(GameObject object){
-        if((getX() >= (object.getX()-(object.getWidth())) && (getX()-getWidth()) <= (object.getX()))&&((getY()) >= (object.getY()-object.getHeight()) && (getY()-getHeight()) <= (object.getY()))){
+        if(true){
             return true;
         }
         return false;
