@@ -120,7 +120,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         }
         for(int i = 0; i < reds.size(); i++){
             for(int j = 0; j < blues.size(); j++){
-                if (reds.get(i).getRectangle().intersect(blues.get(j).getRectangle())){
+                if (reds.get(i).getCircle().contains(blues.get(j).getCircle())){
                     blues.remove(j);
                     numBlues--;
                 }

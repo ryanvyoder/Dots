@@ -29,6 +29,10 @@ public class Red extends GameObject {
         return r;
     }
 
+    public Circle getCircle(){
+        return new Circle(r, x-r, y+r);
+    }
+
     public void update(){
         y += dy;
         x += dx;

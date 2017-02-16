@@ -33,15 +33,19 @@ public class Blue extends GameObject {
 
     }
 
+    public Circle getCircle(){
+        return new Circle(r, x-r, y+r);
+    }
+
     public void setDx(int speed){dx = speed; }
 
     public void setDy(int speed){dy = speed; }
 
     public boolean isTouched(int x, int y){
         boolean touched;
-        Rect myRect = this.getRectangle();
+        Circle myCircle = this.getCircle();
 
-        touched = myRect.contains(x, y);
+        touched = myCircle.contains(x, y);
 
         return touched;
     }
