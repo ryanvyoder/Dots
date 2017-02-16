@@ -14,11 +14,13 @@ import java.util.Random;
 public class Blue extends GameObject {
     private int r;
 
-    public Blue(){
-        r = 50;
+    public Blue(int[] rRange){
+        int max = rRange[1] - rRange[0];
+        Random rand = new Random();
+        r = rand.nextInt(max);
+        r += rRange[0];
         width = r * 2;
         height = r * 2;
-        Random rand = new Random();
         x = rand.nextInt(GamePanel.WIDTH);
         if(x < this.width){
             x = this.width;
@@ -70,7 +72,7 @@ public class Blue extends GameObject {
 
     public void draw(Canvas canvas){
         Paint paint = new Paint();
-        paint.setColor(Color.BLUE);
+        paint.setColor(Color.parseColor("#42cef4"));
         paint.setStyle(Paint.Style.FILL);
 
         canvas.drawCircle(x - r, y + r, r, paint);

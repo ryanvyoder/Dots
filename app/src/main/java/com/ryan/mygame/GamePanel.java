@@ -16,7 +16,18 @@ import android.view.SurfaceView;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.ryan.mygame.MainThread.canvas;
+
 /**
+ * PLANS:
+ * Perhaps make the background "dance" with color alongside a upbeat electronic sort of music
+ * Have the radius for blues shrink as levels pass, have them speed up
+ * perhaps spawn more than just one red on misclick at harder levels
+ * BUGS:
+ * Blues get stuck on edges at spawn
+ * triple + digit remaining goes off screen
+ * Touching blues sometimes still spawns reds. Not sure what the cause is
+ * sometimes reds eating up the blues will still cause it to run nextLevel()
  * Created by Ryan on 5/10/2016.
  */
 public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
@@ -29,7 +40,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private Background bg;
     private Player player;
     private Player p2;
-    int numBlues = 10;
+    Level level = new Level();
+    int numBlues = level.getNumBlues();
     private ArrayList<Blue> blues = new ArrayList<Blue>();
     private List<Red> reds = new ArrayList<Red>();
     private Context context;
@@ -37,7 +49,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public GamePanel(Context context){
         super(context);
         for(int i = 0; i < numBlues; i++){
-            blues.add(new Blue());
+            blues.add(new Blue(level.getRadiusRange()));
         }
         //adding ability to intercept events like touch screen presses
         getHolder().addCallback(this);
@@ -73,6 +85,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         final float scaleFactorY = getHeight()/(HEIGHT*1.f);
         if(event.getAction() == MotionEvent.ACTION_DOWN){
 
+
             int correctPress = 0;
             for(int i = 0; i < numBlues; i++){
                 //doesnt work for some reason
@@ -81,6 +94,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                     blues.remove(i);
                     numBlues--;
                     correctPress = 1;
+                    level.dotGot();
+                    break;
                 }
             }
 
@@ -112,6 +127,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
     public void update(){
         bg.update();
+
+
+
         for(int i = 0; i < blues.size(); i++){
             blues.get(i).update();
         }
@@ -124,6 +142,18 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                     blues.remove(j);
                     numBlues--;
                 }
+            }
+        }
+
+        // will need to differentiate these; left is game over, right is next level
+        if(numBlues == 0 || level.getRemaining() == 0){
+            level.nextLevel();
+            numBlues = level.getNumBlues();
+            for(int i = 0; i < numBlues; i++){
+                blues.add(new Blue(level.getRadiusRange()));
+            }
+            for(int i = (reds.size() - 1); i >= 0; i--){
+                reds.remove(i);
             }
         }
     }
@@ -142,6 +172,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             for(int i = 0; i < reds.size(); i++){
                 reds.get(i).draw(canvas);
             }
+            Paint textPaint = new Paint();
+            textPaint.setColor(Color.YELLOW);
+            textPaint.setStyle(Paint.Style.FILL);
+            textPaint.setTextSize(72);
+            textPaint.setFakeBoldText(true);
+            canvas.drawText(Integer.toString(level.getRemaining()),WIDTH - 100, 82, textPaint);
         }
     }
 }

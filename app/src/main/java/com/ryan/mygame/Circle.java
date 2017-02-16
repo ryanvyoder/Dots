@@ -34,7 +34,7 @@ public class Circle {
     }
 
     public boolean contains(int x, int y){
-        Circle point = new Circle(1, x, y);
+        Circle point = new Circle(3, x, y);
         return this.contains(point);
     }
 
