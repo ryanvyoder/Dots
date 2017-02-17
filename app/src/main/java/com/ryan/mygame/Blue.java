@@ -7,6 +7,8 @@ import android.graphics.Rect;
 
 import java.util.Random;
 
+import static android.R.attr.direction;
+
 /**
  * Created by Ryan on 2/12/2017.
  */
@@ -14,7 +16,7 @@ import java.util.Random;
 public class Blue extends GameObject {
     private int r;
 
-    public Blue(int[] rRange){
+    public Blue(int[] rRange, int[] sRange){
         int max = rRange[1] - rRange[0];
         Random rand = new Random();
         r = rand.nextInt(max);
@@ -25,20 +27,24 @@ public class Blue extends GameObject {
         if(x <= this.width){
             x = this.width + 1;
         }
-        if(x >= GamePanel.WIDTH - this.width){
-            x = GamePanel.WIDTH - this.width - 1;
+        if(x >= GamePanel.WIDTH ){
+            x = GamePanel.WIDTH  - 1;
         }
         y = rand.nextInt(GamePanel.HEIGHT);
         if(y >= (GamePanel.HEIGHT - this.height)){
             y = GamePanel.HEIGHT - this.height - 1;
         }
-        if(y == 0){
-            y = 1;
-        }
         if( y == 0){y++;}
-        dy = rand.nextInt(10) - 5;
-        dx = rand.nextInt(10) - 5;
-
+        int direction = rand.nextInt(2);
+        dy = rand.nextInt(sRange[1]- sRange[0]) + sRange[0];
+        if(direction == 0){
+            dy *= -1;
+        }
+        dx = rand.nextInt(sRange[1]- sRange[0]) + sRange[0];
+        direction = rand.nextInt(2);
+        if(direction == 0){
+            dx *= -1;
+        }
     }
 
     public Circle getCircle(){

@@ -26,9 +26,14 @@ import static com.ryan.mygame.MainThread.canvas;
  * Perhaps make the background "dance" with color alongside a upbeat electronic sort of music
  * Have the radius for blues shrink as levels pass, have them speed up
  * perhaps spawn more than just one red on misclick at harder levels
+ * perhaps don't spawn so many so soon in the game
+ *  EDIT:
+ *      instead, perhaps have a set of "stages", where first all blues are slow, but many begin spawning
+ *      then, it kind of resets but now the speeds increase a lot
+ *      then finally have both happen in stage 3 as this is very difficult and will keep people trying
  * BUGS:
- * reds get stuck on edges at spawn
- * triple + digit remaining goes off scree
+ * triple + digit remaining goes off screen
+ * maybe just create a clearscreen method for every time display changes
  * Created by Ryan on 5/10/2016.
  */
 public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
@@ -51,7 +56,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public GamePanel(Context context){
         super(context);
         for(int i = 0; i < numBlues; i++){
-            blues.add(new Blue(level.getRadiusRange()));
+            blues.add(new Blue(level.getRadiusRange(), level.getSpeedRange()));
         }
         //adding ability to intercept events like touch screen presses
         getHolder().addCallback(this);
@@ -92,7 +97,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 gameOver = 0;
                 numBlues = level.getNumBlues();
                 for(int i = 0; i < numBlues; i++){
-                    blues.add(new Blue(level.getRadiusRange()));
+                    blues.add(new Blue(level.getRadiusRange(), level.getSpeedRange()));
                 }
             }
 
@@ -165,7 +170,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             level.nextLevel();
             numBlues = level.getNumBlues();
             for(int i = 0; i < numBlues; i++){
-                blues.add(new Blue(level.getRadiusRange()));
+                blues.add(new Blue(level.getRadiusRange(), level.getSpeedRange()));
             }
             for(int i = (reds.size() - 1); i >= 0; i--){
                 reds.remove(i);

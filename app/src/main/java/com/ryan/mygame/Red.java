@@ -21,6 +21,16 @@ public class Red extends GameObject {
         Random rand = new Random();
         this.x = x;
         this.y = y;
+        if(this.x <= this.width){
+            this.x = this.width + 1;
+        }
+        if(this.x >= GamePanel.WIDTH){
+            this.x = GamePanel.WIDTH - 1;
+        }
+        if(this.y >= (GamePanel.HEIGHT - this.height)){
+            this.y = GamePanel.HEIGHT - this.height - 1;
+        }
+        if( this.y <= 0){this.y = 1;}
         dy = rand.nextInt(10) - 5;
         dx = rand.nextInt(10) - 5;
     }
