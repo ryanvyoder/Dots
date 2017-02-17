@@ -22,16 +22,22 @@ public class Blue extends GameObject {
         width = r * 2;
         height = r * 2;
         x = rand.nextInt(GamePanel.WIDTH);
-        if(x < this.width){
-            x = this.width;
+        if(x <= this.width){
+            x = this.width + 1;
+        }
+        if(x >= GamePanel.WIDTH - this.width){
+            x = GamePanel.WIDTH - this.width - 1;
         }
         y = rand.nextInt(GamePanel.HEIGHT);
-        if(y > (GamePanel.HEIGHT - this.height)){
-            y = GamePanel.HEIGHT - this.height ;
+        if(y >= (GamePanel.HEIGHT - this.height)){
+            y = GamePanel.HEIGHT - this.height - 1;
+        }
+        if(y == 0){
+            y = 1;
         }
         if( y == 0){y++;}
-        dy = rand.nextInt(10);
-        dx = rand.nextInt(10);
+        dy = rand.nextInt(10) - 5;
+        dx = rand.nextInt(10) - 5;
 
     }
 

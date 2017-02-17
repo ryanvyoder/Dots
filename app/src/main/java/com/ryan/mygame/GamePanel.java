@@ -2,16 +2,19 @@ package com.ryan.mygame;
 
 import android.content.Context;
 //import android.support.annotation.MainThread;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +27,8 @@ import static com.ryan.mygame.MainThread.canvas;
  * Have the radius for blues shrink as levels pass, have them speed up
  * perhaps spawn more than just one red on misclick at harder levels
  * BUGS:
- * Blues get stuck on edges at spawn
- * triple + digit remaining goes off screen
- * Touching blues sometimes still spawns reds. Not sure what the cause is
- * sometimes reds eating up the blues will still cause it to run nextLevel()
+ * reds get stuck on edges at spawn
+ * triple + digit remaining goes off scree
  * Created by Ryan on 5/10/2016.
  */
 public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
@@ -40,6 +41,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private Background bg;
     private Player player;
     private Player p2;
+    private int gameOver = 0;
     Level level = new Level();
     int numBlues = level.getNumBlues();
     private ArrayList<Blue> blues = new ArrayList<Blue>();
@@ -85,24 +87,33 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         final float scaleFactorY = getHeight()/(HEIGHT*1.f);
         if(event.getAction() == MotionEvent.ACTION_DOWN){
 
-
-            int correctPress = 0;
-            for(int i = 0; i < numBlues; i++){
-                //doesnt work for some reason
-                if(blues.get(i).isTouched((int)(event.getX() / scaleFactorX), (int)(event.getY() / scaleFactorY))){
-                    System.out.println("TOUCHED TOUCHED TOUCHED TOUCHED");
-                    blues.remove(i);
-                    numBlues--;
-                    correctPress = 1;
-                    level.dotGot();
-                    break;
+            if(gameOver == 1){
+                level.Reset();
+                gameOver = 0;
+                numBlues = level.getNumBlues();
+                for(int i = 0; i < numBlues; i++){
+                    blues.add(new Blue(level.getRadiusRange()));
                 }
             }
 
-            if(correctPress == 0){
-                reds.add(new Red((int)((event.getX() / scaleFactorX) + Red.getR()), (int)((event.getY() / scaleFactorY)-Red.getR())));
-            }
+            else {
+                int correctPress = 0;
+                for (int i = blues.size() - 1; i >= 0; i--) {
+                    //doesnt work for some reason
+                    if (blues.get(i).isTouched((int) (event.getX() / scaleFactorX), (int) (event.getY() / scaleFactorY))) {
+                        System.out.println("TOUCHED TOUCHED TOUCHED TOUCHED");
+                        blues.remove(i);
+                        numBlues--;
+                        correctPress = 1;
+                        level.dotGot();
+                        break;
+                    }
+                }
 
+                if (correctPress == 0) {
+                    reds.add(new Red((int) ((event.getX() / scaleFactorX) + Red.getR()), (int) ((event.getY() / scaleFactorY) - Red.getR())));
+                }
+            }
             return true;
         }
         if(event.getAction() == MotionEvent.ACTION_UP){
@@ -137,16 +148,20 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             reds.get(i).update();
         }
         for(int i = 0; i < reds.size(); i++){
-            for(int j = 0; j < blues.size(); j++){
+            for(int j = blues.size() -1; j >= 0; j--){
                 if (reds.get(i).getCircle().contains(blues.get(j).getCircle())){
                     blues.remove(j);
                     numBlues--;
+                    break;
                 }
             }
         }
 
         // will need to differentiate these; left is game over, right is next level
-        if(numBlues == 0 || level.getRemaining() == 0){
+        if(level.getRemaining() == 0){
+            for(int i = (blues.size() - 1); i >= 0; i--){
+                blues.remove(i);
+            }
             level.nextLevel();
             numBlues = level.getNumBlues();
             for(int i = 0; i < numBlues; i++){
@@ -156,6 +171,16 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 reds.remove(i);
             }
         }
+        else if(numBlues == 0){
+            for(int i = (blues.size() - 1); i >= 0; i--){
+                blues.remove(i);
+            }
+            for(int i = (reds.size() - 1); i >= 0; i--){
+                reds.remove(i);
+            }
+
+            gameOver = 1;
+        }
     }
 
     public void draw(Canvas canvas){
@@ -164,20 +189,35 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         final float scaleFactorX = getWidth()/(WIDTH*1.f);
         final float scaleFactorY = getHeight()/(HEIGHT*1.f);
         if (canvas != null){
-            canvas.scale(scaleFactorX, scaleFactorY);
-            bg.draw(canvas);
-            for(int i = 0; i < blues.size(); i++){
-                blues.get(i).draw(canvas);
+            if(gameOver == 0) {
+                canvas.scale(scaleFactorX, scaleFactorY);
+                bg.draw(canvas);
+                for (int i = 0; i < blues.size(); i++) {
+                    blues.get(i).draw(canvas);
+                }
+                for (int i = 0; i < reds.size(); i++) {
+                    reds.get(i).draw(canvas);
+                }
+                Paint textPaint = new Paint();
+                textPaint.setColor(Color.YELLOW);
+                textPaint.setStyle(Paint.Style.FILL);
+                textPaint.setTextSize(72);
+                textPaint.setFakeBoldText(true);
+                canvas.drawText(Integer.toString(level.getRemaining()), WIDTH - 100, 82, textPaint);
             }
-            for(int i = 0; i < reds.size(); i++){
-                reds.get(i).draw(canvas);
+            else{
+                canvas.scale(scaleFactorX, scaleFactorY);
+                bg.draw(canvas);
+                Paint textPaint = new Paint();
+                textPaint.setColor(Color.BLUE);
+                textPaint.setStyle(Paint.Style.FILL);
+                textPaint.setTextSize(100);
+                textPaint.setFakeBoldText(true);
+                textPaint.setTextAlign(Paint.Align.CENTER);
+                String output = "Max Level:";
+                canvas.drawText(output, WIDTH / 2, HEIGHT / 2, textPaint);
+                canvas.drawText(Integer.toString(level.getLevel()), WIDTH /2, (HEIGHT/2) + 105, textPaint);
             }
-            Paint textPaint = new Paint();
-            textPaint.setColor(Color.YELLOW);
-            textPaint.setStyle(Paint.Style.FILL);
-            textPaint.setTextSize(72);
-            textPaint.setFakeBoldText(true);
-            canvas.drawText(Integer.toString(level.getRemaining()),WIDTH - 100, 82, textPaint);
         }
     }
 }

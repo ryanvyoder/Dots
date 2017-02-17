@@ -21,8 +21,8 @@ public class Red extends GameObject {
         Random rand = new Random();
         this.x = x;
         this.y = y;
-        dy = rand.nextInt(10);
-        dx = rand.nextInt(10);
+        dy = rand.nextInt(10) - 5;
+        dx = rand.nextInt(10) - 5;
     }
 
     public static int getR(){
