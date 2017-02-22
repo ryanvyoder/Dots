@@ -14,6 +14,9 @@ import static com.ryan.mygame.MainThread.canvas;
 
 public class Red extends GameObject {
     private static int r = 50;
+    private int frame = 0;
+    private boolean colorFlash = false;
+    private int flashRate = 15;
 
     public Red (int x, int y){
         width = r * 2;
@@ -60,12 +63,42 @@ public class Red extends GameObject {
         }
     }
 
-    public void draw(Canvas canvass){
+    public Paint chooseColor(Paint p){
+        if(frame % flashRate == 0){
+            if(colorFlash) {
+                p.setColor(Color.BLACK);
+            }
+            else{
+                p.setColor(Color.DKGRAY);
+            }
+            colorFlash = !colorFlash;
+        }
+        else{
+            if(!colorFlash) {
+                p.setColor(Color.BLACK);
+            }
+            else{
+                p.setColor(Color.DKGRAY);
+            }
+        }
+        return p;
+    }
+
+    public void draw(Canvas canvas){
         Paint paint = new Paint();
-        paint.setColor(Color.RED);
+        //paint.setColor(Color.RED);
+        paint = chooseColor(paint);
         paint.setStyle(Paint.Style.FILL);
 
+
+        Paint paint2 = new Paint();
+        paint2.setColor(Color.WHITE);
+        paint2.setStyle(Paint.Style.STROKE);
+        paint2.setStrokeWidth(5);
+
         canvas.drawCircle(x-r, y+r, r, paint);
+        canvas.drawCircle(x-r,y+r,r,paint2);
+        frame++;
     }
 
 }

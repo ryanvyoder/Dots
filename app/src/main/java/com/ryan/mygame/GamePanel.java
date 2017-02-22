@@ -16,8 +16,12 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import static com.ryan.mygame.MainThread.canvas;
 
@@ -31,6 +35,8 @@ import static com.ryan.mygame.MainThread.canvas;
  *      instead, perhaps have a set of "stages", where first all blues are slow, but many begin spawning
  *      then, it kind of resets but now the speeds increase a lot
  *      then finally have both happen in stage 3 as this is very difficult and will keep people trying
+ *
+ *      have the reds consume x number of blues before despawning
  * BUGS:
  * triple + digit remaining goes off screen
  * maybe just create a clearscreen method for every time display changes
@@ -52,9 +58,27 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private ArrayList<Blue> blues = new ArrayList<Blue>();
     private List<Red> reds = new ArrayList<Red>();
     private Context context;
+    private int maxLevel = 0;
 
     public GamePanel(Context context){
         super(context);
+
+        // loading in the previous high score (not working)
+        String filename = "sav";
+        FileInputStream is;
+
+        try {
+            //create file if not already found
+            FileOutputStream outputStream = context.openFileOutput(filename, Context.MODE_PRIVATE);
+            outputStream.close();
+            is = context.openFileInput(filename);
+            Scanner scan = new Scanner(is);
+            maxLevel = scan.nextInt();
+            is.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         for(int i = 0; i < numBlues; i++){
             blues.add(new Blue(level.getRadiusRange(), level.getSpeedRange()));
         }
@@ -93,6 +117,18 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         if(event.getAction() == MotionEvent.ACTION_DOWN){
 
             if(gameOver == 1){
+                String filename = "sav";
+                FileOutputStream outputStream;
+
+                try {
+                    outputStream = context.openFileOutput(filename, Context.MODE_PRIVATE);
+                    outputStream.write(Integer.toString(maxLevel).getBytes());
+                    outputStream.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
                 level.Reset();
                 gameOver = 0;
                 numBlues = level.getNumBlues();
@@ -211,6 +247,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 canvas.drawText(Integer.toString(level.getRemaining()), WIDTH - 100, 82, textPaint);
             }
             else{
+                // game over screen
                 canvas.scale(scaleFactorX, scaleFactorY);
                 bg.draw(canvas);
                 Paint textPaint = new Paint();
@@ -219,9 +256,31 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 textPaint.setTextSize(100);
                 textPaint.setFakeBoldText(true);
                 textPaint.setTextAlign(Paint.Align.CENTER);
+
+                Paint textBackground = new Paint();
+                textBackground.setColor(Color.CYAN);
+                textBackground.setStyle(Paint.Style.STROKE);
+                textBackground.setStrokeWidth(3);
+                textBackground.setTextSize(100);
+                textBackground.setFakeBoldText(true);
+                textBackground.setTextAlign(Paint.Align.CENTER);
+
+
                 String output = "Max Level:";
+                String output2 = "High Score:";
                 canvas.drawText(output, WIDTH / 2, HEIGHT / 2, textPaint);
                 canvas.drawText(Integer.toString(level.getLevel()), WIDTH /2, (HEIGHT/2) + 105, textPaint);
+                canvas.drawText(output, WIDTH / 2, HEIGHT / 2, textBackground);
+                canvas.drawText(Integer.toString(level.getLevel()), WIDTH /2, (HEIGHT/2) + 105, textBackground);
+                textPaint.setTextSize(50);
+                textBackground.setTextSize(50);
+                if(maxLevel < level.getLevel()){
+                    maxLevel = level.getLevel();
+                }
+                canvas.drawText(output2, WIDTH / 2, (HEIGHT / 2) + 210, textPaint);
+                canvas.drawText(Integer.toString(maxLevel), WIDTH /2, (HEIGHT/2) + 315, textPaint);
+                canvas.drawText(output2, WIDTH / 2, (HEIGHT / 2) + 210, textBackground);
+                canvas.drawText(Integer.toString(maxLevel), WIDTH /2, (HEIGHT/2) + 315, textBackground);
             }
         }
     }

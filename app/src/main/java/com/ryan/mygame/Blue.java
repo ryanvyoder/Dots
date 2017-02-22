@@ -15,10 +15,15 @@ import static android.R.attr.direction;
 
 public class Blue extends GameObject {
     private int r;
+    private Color colour = new Color();
+    private float hue;
+    private int dir = 0;
+    private int rateOfChange = 2;
 
     public Blue(int[] rRange, int[] sRange){
-        int max = rRange[1] - rRange[0];
         Random rand = new Random();
+        hue = rand.nextInt(360);
+        int max = rRange[1] - rRange[0];
         r = rand.nextInt(max);
         r += rRange[0];
         width = r * 2;
@@ -64,7 +69,27 @@ public class Blue extends GameObject {
         return touched;
     }
 
+    private void changeColor(){
+        if(dir == 0){
+            hue+= rateOfChange;
+            if(hue >= 359){
+                hue = 359;
+                dir = 1;
+            }
+        }
+        else{
+            hue-=rateOfChange;
+            if(hue <= 0){
+                hue = 0;
+                dir = 0;
+            }
+        }
+
+    }
+
     public void update(){
+
+        changeColor();
 
         y += dy;
         x += dx;
@@ -84,7 +109,8 @@ public class Blue extends GameObject {
 
     public void draw(Canvas canvas){
         Paint paint = new Paint();
-        paint.setColor(Color.parseColor("#42cef4"));
+        //paint.setColor(Color.parseColor("#42cef4"));
+        paint.setColor(colour.HSVToColor(new float[]{hue, 1, 1}));
         paint.setStyle(Paint.Style.FILL);
 
         canvas.drawCircle(x - r, y + r, r, paint);
